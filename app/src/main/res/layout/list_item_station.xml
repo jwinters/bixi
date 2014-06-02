@@ -1,0 +1,61 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical"
+	android:padding="10dp">
+
+	<TextView
+		android:id="@+id/station_id"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_margin="2dp" />
+
+	<TextView
+		android:id="@+id/station_station_name"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_margin="2dp" />
+
+	<TextView
+		android:id="@+id/station_available_docks"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_margin="2dp" />
+
+    <TextView
+        android:id="@+id/station_available_bikes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="2dp" />
+
+	<TextView
+		android:id="@+id/station_total_docks"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_margin="2dp" />
+
+	<TextView
+		android:id="@+id/station_latitude"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_margin="2dp" />
+
+	<TextView
+		android:id="@+id/station_longitude"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_margin="2dp" />
+
+	<TextView
+		android:id="@+id/station_last_communication_time"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_margin="2dp" />
+
+	<TextView
+		android:id="@+id/station_land_mark"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_margin="2dp" />
+
+</LinearLayout>
