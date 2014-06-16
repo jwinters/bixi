@@ -2,8 +2,9 @@ package com.bixi.providers;
 
 import android.net.Uri;
 
-import io.pivotal.arca.provider.DatabaseProvider;
 import com.bixi.datasets.StationTable;
+
+import io.pivotal.arca.provider.DatabaseProvider;
 
 public class BixiContentProvider extends DatabaseProvider {
 

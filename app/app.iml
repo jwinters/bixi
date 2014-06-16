@@ -72,6 +72,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="arca-monitor-1.0-beta.2-SNAPSHOT" level="project" />
     <orderEntry type="library" exported="" name="arca-adapters-1.0-beta.2-SNAPSHOT" level="project" />
+    <orderEntry type="library" exported="" name="play-services-4.4.52" level="project" />
     <orderEntry type="library" exported="" name="arca-provider-1.0-beta.2-SNAPSHOT" level="project" />
     <orderEntry type="library" exported="" name="gson-2.2.4" level="project" />
     <orderEntry type="library" exported="" name="arca-utils-1.0-beta.2-SNAPSHOT" level="project" />

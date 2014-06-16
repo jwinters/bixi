@@ -3,11 +3,19 @@
 	android:versionCode="1"
 	android:versionName="1.0" >
 
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true"/>
+
 	<uses-sdk
 		android:minSdkVersion="13"
 		android:targetSdkVersion="19" />
 
 	<uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
 	<application
 		android:allowBackup="true"
@@ -15,7 +23,14 @@
 		android:label="@string/app_name"
 		android:theme="@style/AppTheme" >
 
-		<activity android:name=".activities.LauncherActivity" 
+        <meta-data android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="@string/map_key"/>
+
+		<activity android:name=".activities.LauncherActivity"
 			android:theme="@android:style/Theme.Holo.NoActionBar" 
 			android:noHistory="true">
 			<intent-filter>
@@ -26,12 +41,11 @@
 		
 		<activity android:name=".activities.StationListActivity" />
 
-		
 		<service android:name="io.pivotal.arca.service.OperationService" 
 			android:exported="false" />
 
-		<provider android:name=".providers.BixiContentProvider" 
-			android:authorities="com.bixi.providers.BixiContentProvider" 
+		<provider android:name=".providers.BixiContentProvider"
+			android:authorities="com.bixi.providers.BixiContentProvider"
 			android:exported="false" />
 
 	</application>
