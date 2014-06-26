@@ -11,7 +11,7 @@ import io.pivotal.arca.service.OperationService;
 
 public class StationListMonitor extends AbstractRequestMonitor {
 
-	private static final int DELAY = 30 * 1000;
+	private static final int DELAY = 5 * 1000;
 	
 	private long mLastSync = 0;
 

@@ -3,5 +3,7 @@
 	<string name="app_name">Bixi</string>
 	<string name="title_stations">Stations</string>
     <string name="menu_reload">Reload</string>
+    <string name="menu_locations">Locations</string>
+    <string name="title_geofence">Add Geofence</string>
 
 </resources>

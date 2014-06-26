@@ -60,6 +60,9 @@ public class StationTable extends SQLiteTable {
 
         @Column(Column.Type.INTEGER)
         public static final String LAND_MARK = "landMark";
+
+        @Column(Column.Type.INTEGER)
+        public static final String GEOFENCED = "geofenced";
 	}
 
 }

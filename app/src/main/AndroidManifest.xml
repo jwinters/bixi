@@ -20,8 +20,7 @@
 	<application
 		android:allowBackup="true"
 		android:icon="@drawable/ic_launcher"
-		android:label="@string/app_name"
-		android:theme="@style/AppTheme" >
+		android:label="@string/app_name" >
 
         <meta-data android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -39,10 +38,18 @@
 			</intent-filter>
 		</activity>
 		
-		<activity android:name=".activities.StationListActivity" />
+		<activity android:name=".activities.StationListActivity"
+            android:theme="@style/AppTransparentTheme"/>
+
+        <activity android:name=".activities.GeofenceListActivity"
+            android:theme="@style/AppStandardTheme"/>
 
 		<service android:name="io.pivotal.arca.service.OperationService" 
 			android:exported="false" />
+
+        <service
+            android:name=".application.BixiIntentService"
+            android:exported="false" />
 
 		<provider android:name=".providers.BixiContentProvider"
 			android:authorities="com.bixi.providers.BixiContentProvider"

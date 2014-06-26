@@ -33,6 +33,7 @@ public class LauncherActivity extends Activity {
 	}
 
 	public void launch() {
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 		StationListActivity.newInstance(this);
 	}
 

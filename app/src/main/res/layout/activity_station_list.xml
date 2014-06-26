@@ -1,12 +1,36 @@
-<!--<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/fragment_station_list"
-	android:name="com.bixi.fragments.StationListFragment"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent" />-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
 
-<fragment
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/map_fragment"
-    class="com.google.android.gms.maps.MapFragment"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"/>
+    <fragment
+        android:id="@+id/map_fragment"
+        class="com.google.android.gms.maps.MapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.bixi.views.LocationView
+        android:id="@+id/location_view"
+        android:background="@drawable/background_dark"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="10dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/location_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#fff"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/location_subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#fff"
+            android:layout_marginTop="10dp"/>
+
+    </com.bixi.views.LocationView>
+
+</FrameLayout>

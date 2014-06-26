@@ -2,6 +2,7 @@ package com.bixi.activities;
 
 import android.app.Activity;
 import android.app.FragmentManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -11,14 +12,20 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.Toast;
 
 import com.bixi.R;
+import com.bixi.application.BixiIntentService;
 import com.bixi.datasets.StationTable;
 import com.bixi.monitors.StationListMonitor;
 import com.bixi.providers.BixiContentProvider;
+import com.bixi.utils.Utils;
+import com.bixi.views.LocationView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
@@ -27,7 +34,12 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 import io.pivotal.arca.dispatcher.Query;
 import io.pivotal.arca.dispatcher.QueryListener;
@@ -36,8 +48,11 @@ import io.pivotal.arca.fragments.ArcaDispatcherFactory;
 import io.pivotal.arca.monitor.ArcaDispatcher;
 
 public class StationListActivity extends Activity implements QueryListener,
+        GoogleMap.OnMarkerClickListener,
+        GoogleMap.OnMapClickListener,
         GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener,
+        LocationClient.OnAddGeofencesResultListener,
         LocationListener {
 
     public static final void newInstance(final Context context) {
@@ -45,6 +60,7 @@ public class StationListActivity extends Activity implements QueryListener,
         context.startActivity(intent);
     }
 
+    private LocationView mLocationView;
     private LocationRequest mLocationRequest;
     private LocationClient mLocationClient;
     private ArcaDispatcher mDispatcher;
@@ -56,6 +72,16 @@ public class StationListActivity extends Activity implements QueryListener,
         setContentView(R.layout.activity_station_list);
         setTitle(R.string.title_stations);
 
+        mLocationView = (LocationView) findViewById(R.id.location_view);
+
+        final MarginLayoutParams params = (MarginLayoutParams) mLocationView.getLayoutParams();
+        params.setMargins(15, Utils.getActionBarHeight(this) + 15, 15, 0);
+
+        final FragmentManager manager = getFragmentManager();
+        mMap = ((MapFragment) manager.findFragmentById(R.id.map_fragment)).getMap();
+        mMap.setOnMarkerClickListener(this);
+        mMap.setOnMapClickListener(this);
+
         mLocationClient = new LocationClient(this, this, this);
 
         mLocationRequest = LocationRequest.create();
@@ -63,29 +89,8 @@ public class StationListActivity extends Activity implements QueryListener,
         mLocationRequest.setInterval(5 * 1000);
         mLocationRequest.setFastestInterval(1);
 
-        final FragmentManager manager = getFragmentManager();
-        mMap = ((MapFragment) manager.findFragmentById(R.id.map_fragment)).getMap();
-        mMap.setMyLocationEnabled(true);
-
         mDispatcher = ArcaDispatcherFactory.generateDispatcher(this);
         mDispatcher.setRequestMonitor(new StationListMonitor());
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.fragment_station_list, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
-        if (item.getItemId() == R.id.menu_reload) {
-            reload();
-            return true;
-        } else {
-            return super.onOptionsItemSelected(item);
-        }
     }
 
     @Override
@@ -125,6 +130,11 @@ public class StationListActivity extends Activity implements QueryListener,
         }
     }
 
+    @Override
+    public void onRequestReset() {
+        //do nothing
+    }
+
     private void addMarker(final Cursor cursor) {
         final float lat = cursor.getFloat(cursor.getColumnIndex(StationTable.Columns.LATITUDE));
         final float lon = cursor.getFloat(cursor.getColumnIndex(StationTable.Columns.LONGITUDE));
@@ -132,13 +142,50 @@ public class StationListActivity extends Activity implements QueryListener,
         final int bikes = cursor.getInt(cursor.getColumnIndex(StationTable.Columns.AVAILABLE_BIKES));
         final int docks = cursor.getInt(cursor.getColumnIndex(StationTable.Columns.AVAILABLE_DOCKS));
 
-        final String title = String.format("%s \n[%d bikes, %d docks]", station, bikes, docks);
-        mMap.addMarker(new MarkerOptions().position(new LatLng(lat, lon)).title(title).flat(true));
+        final String title = String.format(Locale.getDefault(), "%s", station);
+        final String snippet = String.format(Locale.getDefault(), "[%d bikes, %d docks]", bikes, docks);
+        mMap.addMarker(new MarkerOptions().position(new LatLng(lat, lon)).title(title).snippet(snippet).flat(true));
+    }
+
+    private void setLocation(final double latitude, final double longitude) {
+        final LatLng latLng = new LatLng(latitude, longitude);
+        final CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
+        mMap.animateCamera(cameraUpdate, 200, null);
     }
 
     @Override
-    public void onRequestReset() {
-        //do nothing
+    public boolean onMarkerClick(final Marker marker) {
+        final LatLng position = marker.getPosition();
+        setLocation(position.latitude, position.longitude);
+        mLocationView.setTitle(marker.getTitle());
+        mLocationView.setSubtitle(marker.getSnippet());
+        mLocationView.setVisibility(View.VISIBLE);
+        return true;
+    }
+
+    @Override
+    public void onMapClick(final LatLng latLng) {
+        mLocationView.setVisibility(View.GONE);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.fragment_station_list, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        if (item.getItemId() == R.id.menu_reload) {
+            reload();
+            return true;
+        } else if (item.getItemId() == R.id.menu_locations) {
+            GeofenceListActivity.newInstance(this);
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -164,13 +211,34 @@ public class StationListActivity extends Activity implements QueryListener,
     }
 
     @Override
+    public void onAddGeofencesResult(final int i, final String[] strings) {
+
+    }
+
+    @Override
     public void onLocationChanged(final Location location) {
         setLocation(location.getLatitude(), location.getLongitude());
     }
 
-    private void setLocation(final double latitude, final double longitude) {
-        final LatLng latLng = new LatLng(latitude, longitude);
-        final CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
-        mMap.animateCamera(cameraUpdate);
+    private PendingIntent getTransitionPendingIntent() {
+        final Intent intent = new Intent(this, BixiIntentService.class);
+        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    private List<Geofence> getGeofenceLocations(final MarkerOptions options) {
+        final List<Geofence> locations = new ArrayList<Geofence>();
+        locations.add(getGeofence(options));
+        return locations;
+    }
+
+    private Geofence getGeofence(MarkerOptions options) {
+        final LatLng position = options.getPosition();
+
+        return new Geofence.Builder()
+            .setRequestId(options.getTitle())
+            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
+            .setCircularRegion(position.latitude, position.longitude, 100)
+            .setExpirationDuration(Geofence.NEVER_EXPIRE)
+            .build();
     }
 }
