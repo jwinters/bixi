@@ -2,7 +2,6 @@ package com.bixi.activities;
 
 import android.app.Activity;
 import android.app.FragmentManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -17,7 +16,6 @@ import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.Toast;
 
 import com.bixi.R;
-import com.bixi.application.BixiIntentService;
 import com.bixi.datasets.StationTable;
 import com.bixi.monitors.StationListMonitor;
 import com.bixi.providers.BixiContentProvider;
@@ -25,7 +23,6 @@ import com.bixi.utils.Utils;
 import com.bixi.views.LocationView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
@@ -37,8 +34,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 import io.pivotal.arca.dispatcher.Query;
@@ -52,7 +47,6 @@ public class StationListActivity extends Activity implements QueryListener,
         GoogleMap.OnMapClickListener,
         GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener,
-        LocationClient.OnAddGeofencesResultListener,
         LocationListener {
 
     public static final void newInstance(final Context context) {
@@ -211,34 +205,8 @@ public class StationListActivity extends Activity implements QueryListener,
     }
 
     @Override
-    public void onAddGeofencesResult(final int i, final String[] strings) {
-
-    }
-
-    @Override
     public void onLocationChanged(final Location location) {
         setLocation(location.getLatitude(), location.getLongitude());
     }
 
-    private PendingIntent getTransitionPendingIntent() {
-        final Intent intent = new Intent(this, BixiIntentService.class);
-        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-    }
-
-    private List<Geofence> getGeofenceLocations(final MarkerOptions options) {
-        final List<Geofence> locations = new ArrayList<Geofence>();
-        locations.add(getGeofence(options));
-        return locations;
-    }
-
-    private Geofence getGeofence(MarkerOptions options) {
-        final LatLng position = options.getPosition();
-
-        return new Geofence.Builder()
-            .setRequestId(options.getTitle())
-            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
-            .setCircularRegion(position.latitude, position.longitude, 100)
-            .setExpirationDuration(Geofence.NEVER_EXPIRE)
-            .build();
-    }
 }
