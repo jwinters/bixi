@@ -159,6 +159,7 @@ public class GeofenceListFragment extends ArcaAdapterFragment implements
 
         if (!mIsConnected) {
             Toast.makeText(getActivity(), "Location client not connected.", Toast.LENGTH_SHORT).show();
+            return;
         }
 
         final CheckBox checkBox = (CheckBox) view.findViewById(R.id.station_geofenced);

@@ -3,7 +3,7 @@
 	<style name="AppBaseTheme" parent="android:Theme.Light">
 	</style>
 
-	<style name="AppStandardTheme" parent="AppBaseTheme">
+	<style name="AppTheme" parent="AppBaseTheme">
 	</style>
 
 </resources>

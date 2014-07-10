@@ -69,7 +69,7 @@ public class StationListActivity extends Activity implements QueryListener,
         mLocationView = (LocationView) findViewById(R.id.location_view);
 
         final MarginLayoutParams params = (MarginLayoutParams) mLocationView.getLayoutParams();
-        params.setMargins(15, Utils.getActionBarHeight(this) + 15, 15, 0);
+        params.setMargins(30, Utils.getActionBarHeight(this) + 32, 30, 0);
 
         final FragmentManager manager = getFragmentManager();
         mMap = ((MapFragment) manager.findFragmentById(R.id.map_fragment)).getMap();
