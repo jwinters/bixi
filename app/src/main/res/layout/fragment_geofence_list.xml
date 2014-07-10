@@ -1,9 +1,10 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:paddingTop="10dp">
 
     <GridView
-        android:layout_marginTop="70dp"
+        android:layout_marginTop="?android:attr/actionBarSize"
         android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

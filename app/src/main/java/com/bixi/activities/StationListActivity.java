@@ -12,17 +12,16 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.Toast;
 
 import com.bixi.R;
 import com.bixi.datasets.StationTable;
 import com.bixi.monitors.StationListMonitor;
 import com.bixi.providers.BixiContentProvider;
-import com.bixi.utils.Utils;
 import com.bixi.views.LocationView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
@@ -41,6 +40,7 @@ import io.pivotal.arca.dispatcher.QueryListener;
 import io.pivotal.arca.dispatcher.QueryResult;
 import io.pivotal.arca.fragments.ArcaDispatcherFactory;
 import io.pivotal.arca.monitor.ArcaDispatcher;
+import io.pivotal.arca.utils.Logger;
 
 public class StationListActivity extends Activity implements QueryListener,
         GoogleMap.OnMarkerClickListener,
@@ -66,10 +66,25 @@ public class StationListActivity extends Activity implements QueryListener,
         setContentView(R.layout.activity_station_list);
         setTitle(R.string.title_stations);
 
-        mLocationView = (LocationView) findViewById(R.id.location_view);
+        final int result = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
 
-        final MarginLayoutParams params = (MarginLayoutParams) mLocationView.getLayoutParams();
-        params.setMargins(30, Utils.getActionBarHeight(this) + 32, 30, 0);
+        if (result != ConnectionResult.SUCCESS) {
+            final String message = GooglePlayServicesUtil.getErrorString(result);
+            Toast.makeText(this, "Google Play Services: " + message, Toast.LENGTH_SHORT).show();
+            finish();
+
+        } else {
+            setupLocationInformation();
+        }
+
+        Logger.setup(true, "blah");
+    }
+
+    private void setupLocationInformation() {
+        mLocationView = (LocationView) findViewById(R.id.location_view);
+//
+//        final MarginLayoutParams params = (MarginLayoutParams) mLocationView.getLayoutParams();
+//        params.setMargins(30, Utils.getActionBarHeight(this) + 32, 30, 0);
 
         final FragmentManager manager = getFragmentManager();
         mMap = ((MapFragment) manager.findFragmentById(R.id.map_fragment)).getMap();
@@ -110,12 +125,13 @@ public class StationListActivity extends Activity implements QueryListener,
 
     private void reload() {
         final Uri uri = BixiContentProvider.Uris.STATIONS;
-        mDispatcher.execute(new Query(uri), this);
+        mDispatcher.execute(new Query(uri, 1000), this);
     }
 
     @Override
     public void onRequestComplete(final QueryResult result) {
         final Cursor cursor = result.getResult();
+        Logger.e("onRequestComplete: " + result.getResult().getCount());
 
         mMap.clear();
 
@@ -142,15 +158,20 @@ public class StationListActivity extends Activity implements QueryListener,
     }
 
     private void setLocation(final double latitude, final double longitude) {
+        setLocation(latitude, longitude, 15.0f);
+    }
+
+    private void setLocation(final double latitude, final double longitude, final float zoom) {
         final LatLng latLng = new LatLng(latitude, longitude);
-        final CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
+        final CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
         mMap.animateCamera(cameraUpdate, 200, null);
     }
 
     @Override
     public boolean onMarkerClick(final Marker marker) {
         final LatLng position = marker.getPosition();
-        setLocation(position.latitude, position.longitude);
+        final float zoom = mMap.getCameraPosition().zoom;
+        setLocation(position.latitude, position.longitude, zoom);
         mLocationView.setTitle(marker.getTitle());
         mLocationView.setSubtitle(marker.getSnippet());
         mLocationView.setVisibility(View.VISIBLE);

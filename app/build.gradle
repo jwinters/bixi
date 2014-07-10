@@ -12,6 +12,7 @@ android {
 
 dependencies {
     compile 'com.google.code.gson:gson:2.2.4'
-    compile 'io.pivotal:arca:1.0-beta.2-SNAPSHOT'
+    compile 'io.pivotal:arca:1.0-beta.3-SNAPSHOT'
     compile 'com.google.android.gms:play-services:4.4.52'
 }
+

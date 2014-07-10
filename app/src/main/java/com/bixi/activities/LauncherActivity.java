@@ -10,7 +10,7 @@ import com.bixi.R;
 public class LauncherActivity extends Activity {
 
 	private static final int LAUNCH_MSG = 100;
-	private static final int LAUNCH_DURATION = 2000;
+	private static final int LAUNCH_DURATION = 1000;
 
 	private final LaunchHandler mHandler = new LaunchHandler(this);
 

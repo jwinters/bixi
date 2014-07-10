@@ -20,6 +20,7 @@
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
+        android:theme="@style/AppTheme"
         android:label="@string/app_name">
 
         <meta-data
@@ -40,13 +41,9 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".activities.StationListActivity"
-            android:theme="@style/AppTheme" />
+        <activity android:name=".activities.StationListActivity" />
 
-        <activity
-            android:name=".activities.GeofenceListActivity"
-            android:theme="@style/AppTheme" />
+        <activity android:name=".activities.GeofenceListActivity" />
 
         <service
             android:name="io.pivotal.arca.service.OperationService"
