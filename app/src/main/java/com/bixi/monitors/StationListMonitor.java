@@ -11,7 +11,7 @@ import io.pivotal.arca.service.OperationService;
 
 public class StationListMonitor extends AbstractRequestMonitor {
 
-	private static final int DELAY = 5 * 1000;
+	private static final int DELAY = 60 * 1000;
 	
 	private long mLastSync = 0;
 
@@ -27,7 +27,7 @@ public class StationListMonitor extends AbstractRequestMonitor {
 	public int onPostExecute(final Context context, final Query request, final QueryResult result) {
 		if (shouldSync() && startDataSync(context, request.getUri())) {
 			mLastSync = System.currentTimeMillis();
-			return Flags.DATA_SYNCING; 
+			return Flags.DATA_SYNCING;
 		} else {
 			return 0;
 		}

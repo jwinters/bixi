@@ -40,7 +40,6 @@ import io.pivotal.arca.dispatcher.QueryListener;
 import io.pivotal.arca.dispatcher.QueryResult;
 import io.pivotal.arca.fragments.ArcaDispatcherFactory;
 import io.pivotal.arca.monitor.ArcaDispatcher;
-import io.pivotal.arca.utils.Logger;
 
 public class StationListActivity extends Activity implements QueryListener,
         GoogleMap.OnMarkerClickListener,
@@ -72,32 +71,45 @@ public class StationListActivity extends Activity implements QueryListener,
             final String message = GooglePlayServicesUtil.getErrorString(result);
             Toast.makeText(this, "Google Play Services: " + message, Toast.LENGTH_SHORT).show();
             finish();
-
         } else {
-            setupLocationInformation();
+            setup();
         }
-
-        Logger.setup(true, "blah");
     }
 
-    private void setupLocationInformation() {
-        mLocationView = (LocationView) findViewById(R.id.location_view);
-//
-//        final MarginLayoutParams params = (MarginLayoutParams) mLocationView.getLayoutParams();
-//        params.setMargins(30, Utils.getActionBarHeight(this) + 32, 30, 0);
+    private void setup() {
+        setupMapView();
+        setupLocationView();
+        setupLocationClient();
+        setupLocationRequest();
+        setupDispatcher();
+    }
 
+    private void setupMapView() {
         final FragmentManager manager = getFragmentManager();
         mMap = ((MapFragment) manager.findFragmentById(R.id.map_fragment)).getMap();
         mMap.setOnMarkerClickListener(this);
         mMap.setOnMapClickListener(this);
+        mMap.setPadding(10, 175, 10, 10);
+        mMap.setMyLocationEnabled(false);
+        mMap.getUiSettings().setCompassEnabled(false);
+    }
 
+    private void setupLocationView() {
+        mLocationView = (LocationView) findViewById(R.id.location_view);
+    }
+
+    private void setupLocationClient() {
         mLocationClient = new LocationClient(this, this, this);
+    }
 
+    private void setupLocationRequest() {
         mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         mLocationRequest.setInterval(5 * 1000);
         mLocationRequest.setFastestInterval(1);
+    }
 
+    private void setupDispatcher() {
         mDispatcher = ArcaDispatcherFactory.generateDispatcher(this);
         mDispatcher.setRequestMonitor(new StationListMonitor());
     }
@@ -107,6 +119,7 @@ public class StationListActivity extends Activity implements QueryListener,
         super.onStart();
 
         mLocationClient.connect();
+        reload();
     }
 
     @Override
@@ -116,13 +129,6 @@ public class StationListActivity extends Activity implements QueryListener,
         mLocationClient.disconnect();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        reload();
-    }
-
     private void reload() {
         final Uri uri = BixiContentProvider.Uris.STATIONS;
         mDispatcher.execute(new Query(uri, 1000), this);
@@ -130,11 +136,9 @@ public class StationListActivity extends Activity implements QueryListener,
 
     @Override
     public void onRequestComplete(final QueryResult result) {
-        final Cursor cursor = result.getResult();
-        Logger.e("onRequestComplete: " + result.getResult().getCount());
-
         mMap.clear();
 
+        final Cursor cursor = result.getResult();
         while (cursor.moveToNext()) {
             addMarker(cursor);
         }
@@ -228,6 +232,7 @@ public class StationListActivity extends Activity implements QueryListener,
     @Override
     public void onLocationChanged(final Location location) {
         setLocation(location.getLatitude(), location.getLongitude());
+        mLocationClient.removeLocationUpdates(this);
     }
 
 }

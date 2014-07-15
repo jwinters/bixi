@@ -156,20 +156,25 @@ public class GeofenceListFragment extends ArcaAdapterFragment implements
 
 	@Override
 	public void onItemClick(final AdapterView<?> adapterView, final View view, final int position, final long id) {
-
         if (!mIsConnected) {
-            Toast.makeText(getActivity(), "Location client not connected.", Toast.LENGTH_SHORT).show();
-            return;
+            Toast.makeText(getActivity(), "Please wait. Location client connecting...", Toast.LENGTH_SHORT).show();
+        } else {
+            final Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
+            final boolean checked = updateCheckBoxState(view);
+
+            updateLocationClient(cursor, checked);
+            updateGeofenceRecord(cursor, checked);
         }
+	}
 
+    private boolean updateCheckBoxState(final View view) {
         final CheckBox checkBox = (CheckBox) view.findViewById(R.id.station_geofenced);
-
         final boolean checked = !checkBox.isChecked();
         checkBox.setChecked(checked);
+        return checked;
+    }
 
-        final Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
-        final int itemId = cursor.getInt(cursor.getColumnIndex(StationView.Columns.ID));
-
+    private void updateLocationClient(final Cursor cursor, final boolean checked) {
         if (checked) {
             final List<Geofence> list = getGeofenceLocations(cursor);
             mLocationClient.addGeofences(list, getTransitionPendingIntent(), this);
@@ -177,6 +182,10 @@ public class GeofenceListFragment extends ArcaAdapterFragment implements
             final List<String> list = getGeofenceIds(cursor);
             mLocationClient.removeGeofences(list, this);
         }
+    }
+
+    private void updateGeofenceRecord(final Cursor cursor, final boolean checked) {
+        final int itemId = cursor.getInt(cursor.getColumnIndex(StationView.Columns.ID));
 
         final ContentValues values = new ContentValues();
         values.put(GeofenceTable.Columns.GEOFENCED, checked);
@@ -186,11 +195,6 @@ public class GeofenceListFragment extends ArcaAdapterFragment implements
         final Insert request = new Insert(uri, values);
 
         getRequestDispatcher().execute(request);
-	}
-
-    @Override
-    public void onAddGeofencesResult(final int i, final String[] strings) {
-        Toast.makeText(getActivity(), "Location added.", Toast.LENGTH_SHORT).show();
     }
 
     private PendingIntent getTransitionPendingIntent() {
@@ -216,9 +220,9 @@ public class GeofenceListFragment extends ArcaAdapterFragment implements
         final double longitude = cursor.getDouble(cursor.getColumnIndex(StationView.Columns.LONGITUDE));
 
         return new Geofence.Builder().setRequestId(title)
-            .setCircularRegion(latitude, longitude, 100)
-            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
+            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
             .setExpirationDuration(Geofence.NEVER_EXPIRE)
+            .setCircularRegion(latitude, longitude, 200)
             .build();
     }
 
@@ -233,17 +237,22 @@ public class GeofenceListFragment extends ArcaAdapterFragment implements
     }
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-
+    public void onConnectionFailed(final ConnectionResult connectionResult) {
+        Toast.makeText(getActivity(), "Connection failed.", Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void onRemoveGeofencesByRequestIdsResult(int i, String[] strings) {
-
+    public void onAddGeofencesResult(final int i, final String[] strings) {
+        Toast.makeText(getActivity(), "Location added.", Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void onRemoveGeofencesByPendingIntentResult(int i, PendingIntent pendingIntent) {
+    public void onRemoveGeofencesByRequestIdsResult(final int i, final String[] strings) {
+        Toast.makeText(getActivity(), "Location Removed.", Toast.LENGTH_SHORT).show();
+    }
 
+    @Override
+    public void onRemoveGeofencesByPendingIntentResult(final int i, final PendingIntent pendingIntent) {
+        Toast.makeText(getActivity(), "Location Removed.", Toast.LENGTH_SHORT).show();
     }
 }
