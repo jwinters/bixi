@@ -48,7 +48,7 @@ public class StationListActivity extends Activity implements QueryListener,
         GooglePlayServicesClient.OnConnectionFailedListener,
         LocationListener {
 
-    public static final void newInstance(final Context context) {
+    public static void newInstance(final Context context) {
         final Intent intent = new Intent(context, StationListActivity.class);
         context.startActivity(intent);
     }
@@ -80,7 +80,6 @@ public class StationListActivity extends Activity implements QueryListener,
         setupMapView();
         setupLocationView();
         setupLocationClient();
-        setupLocationRequest();
         setupDispatcher();
     }
 
@@ -100,13 +99,7 @@ public class StationListActivity extends Activity implements QueryListener,
 
     private void setupLocationClient() {
         mLocationClient = new LocationClient(this, this, this);
-    }
-
-    private void setupLocationRequest() {
-        mLocationRequest = LocationRequest.create();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(5 * 1000);
-        mLocationRequest.setFastestInterval(1);
+        mLocationClient.connect();
     }
 
     private void setupDispatcher() {
@@ -118,20 +111,21 @@ public class StationListActivity extends Activity implements QueryListener,
     protected void onStart() {
         super.onStart();
 
-        mLocationClient.connect();
         reload();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        mLocationClient.disconnect();
     }
 
     private void reload() {
         final Uri uri = BixiContentProvider.Uris.STATIONS;
         mDispatcher.execute(new Query(uri, 1000), this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (mLocationClient != null) {
+            mLocationClient.disconnect();
+        }
     }
 
     @Override
@@ -216,7 +210,17 @@ public class StationListActivity extends Activity implements QueryListener,
             setLocation(43.6525, -79.3836);
         }
 
-        mLocationClient.requestLocationUpdates(mLocationRequest, this);
+        mLocationClient.requestLocationUpdates(getLocationRequest(), this);
+    }
+
+    public LocationRequest getLocationRequest() {
+        if (mLocationRequest == null) {
+            mLocationRequest = LocationRequest.create();
+            mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            mLocationRequest.setInterval(5 * 1000);
+            mLocationRequest.setFastestInterval(1);
+        }
+        return mLocationRequest;
     }
 
     @Override

@@ -27,6 +27,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.location.LocationStatusCodes;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -222,7 +223,7 @@ public class GeofenceListFragment extends ArcaAdapterFragment implements
         return new Geofence.Builder().setRequestId(title)
             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
             .setExpirationDuration(Geofence.NEVER_EXPIRE)
-            .setCircularRegion(latitude, longitude, 200)
+            .setCircularRegion(latitude, longitude, 500)
             .build();
     }
 
@@ -242,17 +243,29 @@ public class GeofenceListFragment extends ArcaAdapterFragment implements
     }
 
     @Override
-    public void onAddGeofencesResult(final int i, final String[] strings) {
-        Toast.makeText(getActivity(), "Location added.", Toast.LENGTH_SHORT).show();
+    public void onAddGeofencesResult(final int statusCode, final String[] ids) {
+        if (statusCode == LocationStatusCodes.SUCCESS) {
+            Toast.makeText(getActivity(), "Location added successfully.", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getActivity(), "Location added failure.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
-    public void onRemoveGeofencesByRequestIdsResult(final int i, final String[] strings) {
-        Toast.makeText(getActivity(), "Location Removed.", Toast.LENGTH_SHORT).show();
+    public void onRemoveGeofencesByRequestIdsResult(final int statusCode, final String[] ids) {
+        if (statusCode == LocationStatusCodes.SUCCESS) {
+            Toast.makeText(getActivity(), "Location removed successfully.", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getActivity(), "Location removed failed.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
-    public void onRemoveGeofencesByPendingIntentResult(final int i, final PendingIntent pendingIntent) {
-        Toast.makeText(getActivity(), "Location Removed.", Toast.LENGTH_SHORT).show();
+    public void onRemoveGeofencesByPendingIntentResult(final int statusCode, final PendingIntent pendingIntent) {
+        if (statusCode == LocationStatusCodes.SUCCESS) {
+            Toast.makeText(getActivity(), "Location removed successfully.", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getActivity(), "Location removed failed.", Toast.LENGTH_SHORT).show();
+        }
     }
 }

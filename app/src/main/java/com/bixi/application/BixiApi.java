@@ -31,7 +31,6 @@ public class BixiApi {
 		return execute(request, new Gson(), StationListResponse.class);
 	}
 
-
 	private static <T> T execute(final HttpUriRequest request, final Gson gson, final Type type) throws ClientProtocolException, IOException {
 		Log.v("Network", "Request : " + request.getURI());
 		final HttpClient client = new DefaultHttpClient();
